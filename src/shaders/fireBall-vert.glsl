@@ -23,6 +23,45 @@ vec3 random3(vec3 p) {
 
 }
 
+float noise( in vec3 x ) {
+    // grid
+    vec3 p = floor(x);
+    vec3 w = fract(x);
+    
+    // quintic interpolant
+    vec3 u = w*w*w*(w*(w*6.0-15.0)+10.0);
+    
+    // gradients
+    vec3 ga = random3( p+vec3(0.0,0.0,0.0) );
+    vec3 gb = random3( p+vec3(1.0,0.0,0.0) );
+    vec3 gc = random3( p+vec3(0.0,1.0,0.0) );
+    vec3 gd = random3( p+vec3(1.0,1.0,0.0) );
+    vec3 ge = random3( p+vec3(0.0,0.0,1.0) );
+    vec3 gf = random3( p+vec3(1.0,0.0,1.0) );
+    vec3 gg = random3( p+vec3(0.0,1.0,1.0) );
+    vec3 gh = random3( p+vec3(1.0,1.0,1.0) );
+    
+    // projections
+    float va = dot( ga, w-vec3(0.0,0.0,0.0) );
+    float vb = dot( gb, w-vec3(1.0,0.0,0.0) );
+    float vc = dot( gc, w-vec3(0.0,1.0,0.0) );
+    float vd = dot( gd, w-vec3(1.0,1.0,0.0) );
+    float ve = dot( ge, w-vec3(0.0,0.0,1.0) );
+    float vf = dot( gf, w-vec3(1.0,0.0,1.0) );
+    float vg = dot( gg, w-vec3(0.0,1.0,1.0) );
+    float vh = dot( gh, w-vec3(1.0,1.0,1.0) );
+	
+    // interpolation
+    return va + 
+           u.x*(vb-va) + 
+           u.y*(vc-va) + 
+           u.z*(ve-va) + 
+           u.x*u.y*(va-vb-vc+vd) + 
+           u.y*u.z*(va-vc-ve+vg) + 
+           u.z*u.x*(va-vb-ve+vf) + 
+           u.x*u.y*u.z*(-va+vb+vc-vd+ve-vf-vg+vh);
+}
+
 
 
 float WorleyNoise3D(vec3 pos) {
@@ -54,12 +93,18 @@ float fit(float var, float imin, float imax, float omin, float omax) {
     return (var / (imax - imin)) * (omax - omin);
 }
 
+float smoothstep(float x) {
+    return 6.0;//*pow(x, 6) - 15*pow(x,4) + 10*pow(x,3);
+}
+
 void main()
 {
     fs_Col = vs_Col;    
     fs_Time = u_Time;
-    
-    vec4 pos = vs_Pos + vs_Nor * WorleyNoise3D(vs_Pos.xyz);
+
+    vec3 inpos = vec3(abs(vs_Pos.x)  - u_Time * 0.01, vs_Pos.y, vs_Pos.z);
+    vec4 magic = vec4(smoothstep(vs_Nor.x), 0.0, 0.0, 0.0);
+    vec4 pos = vs_Pos + magic * abs(vs_Nor.x) + vs_Nor * noise(inpos) * (1.0-abs(dot(vec3(0,1,1), vs_Pos.xyz)));
     
     vec4 modelposition = u_Model * pos;
     fs_LightVec = lightPos - modelposition;
