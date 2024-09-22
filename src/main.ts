@@ -97,6 +97,11 @@ function main() {
       new Shader(gl.FRAGMENT_SHADER, require('./shaders/custom-frag.glsl')),
   ]);
 
+  const fireBall = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/fireBall-vert.glsl')), 
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireBall-frag.glsl')),
+  ]);
+
   // This function will be called every frame
   function tick() {
     camera.update();
@@ -121,14 +126,14 @@ function main() {
     }
     
     // CHANGE WHAT IS RENDERED HERE
-    renderer.render(camera, custom, [ // Change shaders
+    renderer.render(camera, fireBall, [ // Change shaders
       icosphere,
       //square, square2, square3
       //cube
       //tesCube
     ]);
     stats.end();
-    renderer.setTime(time, custom);
+    renderer.setTime(time, fireBall);
     time++;
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);
