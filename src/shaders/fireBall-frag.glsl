@@ -61,5 +61,5 @@ void main()
 
     diffuseColor += vec4(noise2, noise2,noise2, 1.0) * (color * 0.5);
 
-    out_Col = vec4(diffuseColor.rgb, noise * 0.6);
+    out_Col = vec4(diffuseColor.rgb, diffuseColor.a);
 }
