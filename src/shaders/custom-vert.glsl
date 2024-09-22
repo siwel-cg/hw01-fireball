@@ -29,6 +29,7 @@ void main()
     mat4 rot = mat4(vec4(cos(a), 0, -sin(a), 0), vec4(0, 1, 0, 0), vec4(sin(a), 0, cos(a), 0), vec4(0,0,0,1));
 
     float tx = 1.0;
+    float test = 1.0;
     
     vec4 pos = vs_Pos;
     vec4 morePos = vs_Pos;
