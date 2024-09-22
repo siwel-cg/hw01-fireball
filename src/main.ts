@@ -122,10 +122,10 @@ function main() {
     
     // CHANGE WHAT IS RENDERED HERE
     renderer.render(camera, custom, [ // Change shaders
-      // icosphere,
+      icosphere,
       //square, square2, square3
       //cube
-      tesCube
+      //tesCube
     ]);
     stats.end();
     renderer.setTime(time, custom);
