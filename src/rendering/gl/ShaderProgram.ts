@@ -39,11 +39,12 @@ class ShaderProgram {
 
   unifSpinSpeed: WebGLUniformLocation;
   unifCross: WebGLUniformLocation;
+  unifSwirl: WebGLUniformLocation;
+  unifRad: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
-    
-
+  
     for (let shader of shaders) {
       gl.attachShader(this.prog, shader.shader);
     }
@@ -65,7 +66,8 @@ class ShaderProgram {
     
     this.unifSpinSpeed  = gl.getUniformLocation(this.prog, "u_SpinSpeed");
     this.unifCross      = gl.getUniformLocation(this.prog, "u_Cross");
-    
+    this.unifSwirl      = gl.getUniformLocation(this.prog, "u_Swirl");
+    this.unifRad        = gl.getUniformLocation(this.prog, "u_Rad");
   }
 
   use() {
@@ -128,6 +130,20 @@ class ShaderProgram {
     this.use();
     if (this.unifCross !== -1) {
       gl.uniform1f(this.unifCross, cross);
+    }
+  }
+  
+  setSwirl(swirl: number) {
+    this.use();
+    if (this.unifSwirl !== -1) {
+      gl.uniform1f(this.unifSwirl, swirl);
+    }
+  }
+
+  setRad(rad: number) {
+    this.use();
+    if (this.unifRad !== -1) {
+      gl.uniform1f(this.unifRad, rad);
     }
   }
 

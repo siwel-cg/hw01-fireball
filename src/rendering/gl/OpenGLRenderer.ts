@@ -40,6 +40,15 @@ class OpenGLRenderer {
     prog.setCross(cross);
   }
 
+  setSwirl(swirl: number, prog: ShaderProgram) {
+    prog.setSwirl(swirl);
+  }
+
+  setRad(rad: number, prog: ShaderProgram) {
+    prog.setRad(rad);
+  }
+
+
   clear() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }

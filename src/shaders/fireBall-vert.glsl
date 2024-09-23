@@ -7,6 +7,8 @@ uniform vec3 u_CamPos;
 
 uniform float u_SpinSpeed;
 uniform float u_Cross;
+uniform float u_Swirl;
+uniform float u_Rad;
 
 in vec4 vs_Pos;             
 in vec4 vs_Nor;             
@@ -21,6 +23,7 @@ out vec4 fs_camPos;
 out float hwarp;
 out float fbmNoise;
 out float fs_mode;
+
  
 const vec4 lightPos = vec4(5, 5, 3, 1); 
 
@@ -127,7 +130,7 @@ float bias(float t, float bias) {
 
 float trianlge(float x) {
     float pi = 3.141592;
-    return ((2.0*18.0*(sin(3.0*2.0)))/pi) * asin(sin((2.0 * pi / 2.0) * x));
+    return smoothsetp(((2.0*18.0*(sin(3.0*2.0)))/pi) * asin(sin((2.0 * pi / 2.0) * x)) * 0.1 * cos(u_Time*0.01));
 }
 
 vec2 swirl(vec2 p, float swirlFactor, float time) {
@@ -143,7 +146,7 @@ void main()
     fs_Col = vs_Col;    
     fs_Time = u_Time;
 
-    float time = u_Time*0.01*u_SpinSpeed * 0.05;
+    float time = u_Time*0.01*u_SpinSpeed * 0.1;
 
     vec4 normal = vs_Nor;
     vec4 position = vs_Pos;
@@ -151,10 +154,10 @@ void main()
     mat3 invTranspose = mat3(u_ModelInvTr);
     float yScaler = 1.0 - abs(vs_Pos.y);
 
-    float a = atan(vs_Pos.x, vs_Pos.z) - cos(time) * yScaler;
+    float a = atan(vs_Pos.x, vs_Pos.z) - sin(time) * yScaler;
     float pi = 3.141592;
 
-    vec3 axis = vec3(1.0, 0.0, 0.0);th v
+    vec3 axis = vec3(0.0, 1.0, 0.0);
     vec3 reference = abs(axis.x) > 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
     vec3 ortho1 = normalize(cross(axis, reference));
     vec3 ortho2 = normalize(cross(axis, ortho1));
@@ -166,19 +169,19 @@ void main()
 
     vec4 warpPos;
     if (u_Cross == 0.0) {
-        warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+        warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02) * u_Rad; // initial warp
     } else {
         warpPos = vs_Pos + lerp(magic, vec4(cross, 1.0), 1.0 - yScaler) * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
-        warpPos += magic * (trianlge(a*6.0 / pi)) * 0.06 * (yScaler);
+        warpPos += magic * (trianlge(a*6.0 / pi)) * 0.06 * (yScaler) * u_Rad;
         time *= -1.0;
     }
     
-    warpPos += magic * (noise(vec3(position))) * 0.1 * (yScaler);
+    warpPos += magic * (noise(vec3(position * u_Rad))) * 0.1 * (yScaler);
 
-    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 8.0, time);
+    vec2 swirlPos = swirl(vec2((position.x), (position.z)), u_Swirl, time);
     vec3 inpos = vec3(swirlPos.x + (time) , vs_Pos.y, swirlPos.y + (time));
 
-    warpPos += normal * fbm(inpos + yScaler, 5) * (yScaler);
+    warpPos += normal * fbm(inpos*2.0*u_Rad + yScaler, 5) * (yScaler);
 
     hwarp = length(magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02));
     fbmNoise = fbm(inpos + yScaler, 5) * (yScaler);
