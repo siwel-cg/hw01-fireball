@@ -3,17 +3,19 @@ uniform mat4 u_Model;
 uniform mat4 u_ModelInvTr;  
 uniform mat4 u_ViewProj;    
 uniform float u_Time;
+uniform vec3 u_CamPos;
 
 in vec4 vs_Pos;             
 in vec4 vs_Nor;             
-in vec4 vs_Col;             
-
+in vec4 vs_Col;  
+          
 out vec4 fs_Nor;            
 out vec4 fs_LightVec;       
 out vec4 fs_Col;  
 out float fs_Time;  
-out vec4 fs_Pos;      
-
+out vec4 fs_Pos;  
+out vec4 fs_camPos; 
+ 
 const vec4 lightPos = vec4(5, 5, 3, 1); 
 
 vec3 random3(vec3 p) {
@@ -21,6 +23,10 @@ vec3 random3(vec3 p) {
                        dot(p, vec3(931.215, 2531.737, 14212.22)),
                        dot(p, vec3(6421.253, 46123.73, 83.11))));
 
+}
+
+float smoothsetp(float p) {
+    return 6.0 * pow(p, 5.0) - 15.0 * pow(p, 4.0) + 10.0 * pow(p, 3.0);
 }
 
 float noise( in vec3 x ) {
@@ -62,8 +68,6 @@ float noise( in vec3 x ) {
            u.x*u.y*u.z*(-va+vb+vc-vd+ve-vf-vg+vh);
 }
 
-
-
 float WorleyNoise3D(vec3 pos) {
     pos *= 0.6; // Now the space is 10x10 instead of 1x1. Change this to any number you want.
     vec3 posInt = floor(pos);
@@ -93,8 +97,8 @@ float fit(float var, float imin, float imax, float omin, float omax) {
     return (var / (imax - imin)) * (omax - omin);
 }
 
-float smoothstep(float x) {
-    return 6.0;//*pow(x, 6) - 15*pow(x,4) + 10*pow(x,3);
+float bias(float t, float bias) {
+  return (t / ((((1.0 / bias) - 2.0) * (1.0 - t)) + 1.0));
 }
 
 void main()
@@ -102,11 +106,15 @@ void main()
     fs_Col = vs_Col;    
     fs_Time = u_Time;
 
+    mat3 invTranspose = mat3(u_ModelInvTr);
+    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
+
     vec3 inpos = vec3(abs(vs_Pos.x)  - u_Time * 0.01, vs_Pos.y, vs_Pos.z);
-    vec4 magic = vec4(smoothstep(vs_Nor.x), 0.0, 0.0, 0.0);
-    vec4 pos = vs_Pos + magic * abs(vs_Nor.x) + vs_Nor * noise(inpos) * (1.0-abs(dot(vec3(0,1,1), vs_Pos.xyz)));
+
+    vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
+    vec4 pos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
     
-    vec4 modelposition = u_Model * pos;
+    vec4 modelposition = u_Model * vs_Pos;
     fs_LightVec = lightPos - modelposition;
     fs_Pos = modelposition;
     gl_Position = u_ViewProj * modelposition;

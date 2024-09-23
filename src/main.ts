@@ -28,6 +28,7 @@ let tesCube: TesCube;
 let prevTesselations: number = 5;
 let prevColor: number[] = [255, 0, 255];
 let time = 0;
+let camTest: vec3;
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
@@ -81,10 +82,12 @@ function main() {
   loadScene();
 
   const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
+  
   const renderer = new OpenGLRenderer(canvas);
 
   renderer.setObjColor(controls.Color[0] / 255, controls.Color[1] / 255, controls.Color[2] / 255, 1);
   renderer.setClearColor(0, 0, 0, 1);
+  
   gl.enable(gl.DEPTH_TEST);
 
   const lambert = new ShaderProgram([
@@ -101,6 +104,8 @@ function main() {
     new Shader(gl.VERTEX_SHADER, require('./shaders/fireBall-vert.glsl')), 
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireBall-frag.glsl')),
   ]);
+
+  renderer.setCamPos(vec3.fromValues(0.0,0.0,5.0), fireBall);
 
   // This function will be called every frame
   function tick() {
@@ -134,6 +139,7 @@ function main() {
     ]);
     stats.end();
     renderer.setTime(time, fireBall);
+    //renderer.setCamPos(vec3.fromValues(0,0,5.0), fireBall);
     time++;
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);
