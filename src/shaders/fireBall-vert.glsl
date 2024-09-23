@@ -29,7 +29,7 @@ float smoothsetp(float p) {
     return 6.0 * pow(p, 5.0) - 15.0 * pow(p, 4.0) + 10.0 * pow(p, 3.0);
 }
 
-float noise( in vec3 x ) {
+float noise(vec3 x) {
     // grid
     vec3 p = floor(x);
     vec3 w = fract(x);
@@ -38,24 +38,24 @@ float noise( in vec3 x ) {
     vec3 u = w*w*w*(w*(w*6.0-15.0)+10.0);
     
     // gradients
-    vec3 ga = random3( p+vec3(0.0,0.0,0.0) );
-    vec3 gb = random3( p+vec3(1.0,0.0,0.0) );
-    vec3 gc = random3( p+vec3(0.0,1.0,0.0) );
-    vec3 gd = random3( p+vec3(1.0,1.0,0.0) );
-    vec3 ge = random3( p+vec3(0.0,0.0,1.0) );
-    vec3 gf = random3( p+vec3(1.0,0.0,1.0) );
-    vec3 gg = random3( p+vec3(0.0,1.0,1.0) );
-    vec3 gh = random3( p+vec3(1.0,1.0,1.0) );
+    vec3 ga = random3(p + vec3(0.0,0.0,0.0));
+    vec3 gb = random3(p + vec3(1.0,0.0,0.0));
+    vec3 gc = random3(p + vec3(0.0,1.0,0.0));
+    vec3 gd = random3(p + vec3(1.0,1.0,0.0));
+    vec3 ge = random3(p + vec3(0.0,0.0,1.0));
+    vec3 gf = random3(p + vec3(1.0,0.0,1.0));
+    vec3 gg = random3(p + vec3(0.0,1.0,1.0));
+    vec3 gh = random3(p + vec3(1.0,1.0,1.0));
     
     // projections
-    float va = dot( ga, w-vec3(0.0,0.0,0.0) );
-    float vb = dot( gb, w-vec3(1.0,0.0,0.0) );
-    float vc = dot( gc, w-vec3(0.0,1.0,0.0) );
-    float vd = dot( gd, w-vec3(1.0,1.0,0.0) );
-    float ve = dot( ge, w-vec3(0.0,0.0,1.0) );
-    float vf = dot( gf, w-vec3(1.0,0.0,1.0) );
-    float vg = dot( gg, w-vec3(0.0,1.0,1.0) );
-    float vh = dot( gh, w-vec3(1.0,1.0,1.0) );
+    float va = dot(ga, w - vec3(0.0,0.0,0.0));
+    float vb = dot(gb, w - vec3(1.0,0.0,0.0));
+    float vc = dot(gc, w - vec3(0.0,1.0,0.0));
+    float vd = dot(gd, w - vec3(1.0,1.0,0.0));
+    float ve = dot(ge, w - vec3(0.0,0.0,1.0));
+    float vf = dot(gf, w - vec3(1.0,0.0,1.0));
+    float vg = dot(gg, w - vec3(0.0,1.0,1.0));
+    float vh = dot(gh, w - vec3(1.0,1.0,1.0));
 	
     // interpolation
     return va + 
@@ -89,7 +89,18 @@ float WorleyNoise3D(vec3 pos) {
 
 float fbm(vec3 p, int oct) {
     float total = 0.0;
-    return 0.0;
+    int octaves = oct;
+    float freqScale = 2.0;
+    float ampScale = 0.5;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+   
+    for (int i = 0; i < octaves; i++) {
+        total += amplitude * noise(p * frequency);
+        frequency *= freqScale;
+        amplitude *= gain;
+    }
+    return total;
 }
 
 //lerpaderpadoo wahooo
@@ -106,18 +117,32 @@ float bias(float t, float bias) {
   return (t / ((((1.0 / bias) - 2.0) * (1.0 - t)) + 1.0));
 }
 
+float trianlge(float x) {
+    float pi = 3.141592;
+    return ((2.0*18.0*(sin(3.0*2.0)))/pi) * asin(sin((2.0 * pi / 2.0) * x));
+}
+
+
 void main()
 {
     fs_Col = vs_Col;    
     fs_Time = u_Time;
 
+    vec4 normal = vs_Nor;
+    vec4 position = vs_Pos;
+
     mat3 invTranspose = mat3(u_ModelInvTr);
 
-    vec3 inpos = vec3(abs(vs_Pos.x)  - u_Time * 0.01, vs_Pos.y, vs_Pos.z);
+    float a = atan(vs_Pos.x, vs_Pos.z) - u_Time*0.01;
+    float pi = 3.141592;
+
+    vec3 inpos = vec3((vs_Pos.x) - (u_Time * 0.01), vs_Pos.y, (vs_Pos.z) - sin(u_Time * 0.01));
 
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
-    vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
-
+    vec3 cross = cross(magic.xyz, vec3(0, 1.0, 0.0));
+    vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+    warpPos += magic * (trianlge(a * 5.0 / pi) * noise(vec3(position))) * 0.1 * (1.0 - abs(position.y));
+    warpPos += normal * fbm(inpos, 5) * (1.0 - abs(position.y));
 
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
     vec4 modelposition = u_Model * warpPos;

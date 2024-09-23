@@ -101,6 +101,22 @@ float WorleyNoise3D(vec3 pos) {
     return minDist;
 }
 
+float fbm(vec3 p, int oct) {
+    float total = 0.0;
+    int octaves = oct;
+    float freqScale = 2.0;
+    float ampScale = 0.5;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+   
+    for (int i = 0; i < octaves; i++) {
+        total += amplitude * noise(p * frequency);
+        frequency *= freqScale;
+        amplitude *= gain;
+    }
+    return total;
+}
+
 //idk if this is right
 float fit(float var, float imin, float imax, float omin, float omax) {
     return (var / (imax - imin)) * (omax - omin);
@@ -113,6 +129,8 @@ void main()
     // float MinNoise = 1.0 - baseNoise;
     // float noise = max(baseNoise, MinNoise);
     // float noise2 = min(baseNoise, MinNoise);
+
+    //vec3 timeOffset = vec3(u_Time, u_Time, u_Time);
 
      float dist = sqrt(fs_Pos.x * fs_Pos.x + fs_Pos.y * fs_Pos.y + fs_Pos.z * fs_Pos.z);
     // vec4 color = lerp(vec4(0, 0, 0, 1), vec4(1.0,1.0,1.0,1.0), fit(dist, 0.8, 2.0, 0.0, 0.3));
