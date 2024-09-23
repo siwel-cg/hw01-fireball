@@ -8,6 +8,16 @@ FRAGMENT SHADER: The fragment shader uses a itterative lerp calls with the dista
 ![](BlackHole_V1.png)
 
 ## White Hole? : Mode 1
-VERTEX SHADER: The vertex shader is mostly the same, with the exception of that initial xz bulge being altered. The base "magic" vector which defines the x and z axis to displace along, get altered using a lerp with the cross product between the surface normal and the view vector to that position. This causes a weird warping effect which I was not expecting, but thought looked cool enough to include. A triangle wave displacement was also added ontop to give more detail around the edges.
+VERTEX SHADER: The vertex shader is mostly the same, with the exception of that initial xz bulge being altered. The base "magic" vector which defines the x and z axis to displace along, get altered using a lerp with the cross product between the surface normal and the view vector to that position. This causes a weird warping effect which I was not expecting, but thought looked cool enough to include. A triangle wave displacement was also added ontop to give more detail around the edges. The time offset variable I had was also reversed to give a spiraling outwards effect.
+
+FRAGMENT SHADER: Again, the fragment shader was just a modification of the black hole coloring, using a similar method. I reversed the inside sphere colors and changed the color pallet.
+
+![](WhiteHole_V1.png)
+![](WhiteHole_V2.png)
+
+## Background
+The background is simply a very large cube that surrounds the entire scene. The vertex shader doesn't do any deformations since I want the sky box to be still. In the fragment shader I use a step function with a worley noise to isolate small points of light as a stary background. Some procedural color is applied based on a noise.
+
+
 
 
