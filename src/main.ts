@@ -13,7 +13,7 @@ import TesCube from './geometry/TesTest';
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
-  tesselations: 5,
+  tesselations: 8, // start at higher resolution :)
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [105,0,255],
 };
@@ -139,7 +139,7 @@ function main() {
     ]);
     stats.end();
     renderer.setTime(time, fireBall);
-    //renderer.setCamPos(vec3.fromValues(0,0,5.0), fireBall);
+    renderer.setCamPos(camera.controls.eye, fireBall);
     time++;
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);

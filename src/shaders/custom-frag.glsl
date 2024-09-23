@@ -10,11 +10,11 @@ in float fs_Time;
 
 out vec4 out_Col; 
 
-// vec2 random2( vec2 p ) {
-//     return fract(sin(vec2(dot(p, vec2(113.48875, 2311.7)),
-//                  dot(p, vec2(129.5,233.3))))
-//                  * 458.5453);
-// }
+vec2 random2( vec2 p ) {
+    return fract(sin(vec2(dot(p, vec2(213.8325, 5123.7973)),
+                 dot(p, vec2(5912.545,7501.3))))
+                 * 401.5903);
+}
 
 vec3 random3(vec3 p) {
     return fract(vec3(dot(p, vec3(113.48875, 2311.7, 592.123)),
@@ -22,8 +22,6 @@ vec3 random3(vec3 p) {
                        dot(p, vec3(6421.253, 46123.73, 83.11))));
 
 }
-
-
 
 float WorleyNoise3D(vec3 pos) {
     pos *= 0.6; // Now the space is 10x10 instead of 1x1. Change this to any number you want.
@@ -44,7 +42,6 @@ float WorleyNoise3D(vec3 pos) {
     return minDist;
 }
 
-//lerpaderpadoo wahooo
 vec4 lerp(vec4 min, vec4 max, float t) {
     return min + t * (max - min);
 }

@@ -7,8 +7,17 @@ in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_Pos;
 in float fs_Time;
+in vec4 fs_camPos;
 
 out vec4 out_Col; 
+
+vec4 lerp(vec4 min, vec4 max, float t) {
+    return min + t * (max - min);
+}
+
+float fallOff(vec3 look, vec3 nor) {
+    return dot(normalize(nor), vec3(lerp(vec4(normalize(nor), 1.0), vec4(normalize(look), 1.0), 1.0)));
+}
 
 vec3 random3(vec3 p) {
     return fract(vec3(dot(p, vec3(113.48875, 2311.7, 592.123)),
@@ -84,10 +93,6 @@ float WorleyNoise3D(vec3 pos) {
     return minDist;
 }
 
-//lerpaderpadoo wahooo
-vec4 lerp(vec4 min, vec4 max, float t) {
-    return min + t * (max - min);
-}
 
 //idk if this is right
 float fit(float var, float imin, float imax, float omin, float omax) {
@@ -97,20 +102,18 @@ float fit(float var, float imin, float imax, float omin, float omax) {
 
 void main()
 {   
-    float baseNoise = fit(mod(WorleyNoise3D(vec3(fs_Pos.xyz) + fs_Time * 0.0001) + fs_Time * 0.001, 0.11), 0.0, 0.1, 0.0, 1.0);
-    float MinNoise = 1.0 - baseNoise;
-    float noise = max(baseNoise, MinNoise);
-    float noise2 = min(baseNoise, MinNoise);
+    // float baseNoise = fit(mod(WorleyNoise3D(vec3(fs_Pos.xyz) + fs_Time * 0.0001) + fs_Time * 0.001, 0.11), 0.0, 0.1, 0.0, 1.0);
+    // float MinNoise = 1.0 - baseNoise;
+    // float noise = max(baseNoise, MinNoise);
+    // float noise2 = min(baseNoise, MinNoise);
 
-    float dist = sqrt(fs_Pos.x * fs_Pos.x + fs_Pos.y * fs_Pos.y + fs_Pos.z * fs_Pos.z);
-    vec4 color = lerp(vec4(0, 0, 0, 1), vec4(1.0,1.0,1.0,1.0), fit(dist, 0.8, 2.0, 0.0, 0.3));
-    vec4 diffuseColor = vec4(noise, noise, noise, 1.0) * color;
+    // float dist = sqrt(fs_Pos.x * fs_Pos.x + fs_Pos.y * fs_Pos.y + fs_Pos.z * fs_Pos.z);
+    // vec4 color = lerp(vec4(0, 0, 0, 1), vec4(1.0,1.0,1.0,1.0), fit(dist, 0.8, 2.0, 0.0, 0.3));
+    // vec4 diffuseColor = vec4(noise, noise, noise, 1.0) * color;
 
-    diffuseColor += vec4(noise2, noise2,noise2, 1.0) * (color * 0.5);
+    //diffuseColor += vec4(noise2, noise2,noise2, 1.0) * (color * 0.5);
 
-
-
-    vec4 colorTest = lerp(vec4(0, 0, 0, 1), vec4(1.0,1.0,1.0,1.0), dot(vec3(0,0,1), fs_Nor.xyz));
+    vec4 colorTest = lerp(u_Color, vec4(1.0,1.0,1.0,1.0), (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
     vec4 colooooor = fs_Col;
-    out_Col = vec4(diffuseColor.rgb, diffuseColor.a);
+    out_Col = colorTest;
 }

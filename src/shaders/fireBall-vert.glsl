@@ -87,6 +87,11 @@ float WorleyNoise3D(vec3 pos) {
     return minDist;
 }
 
+float fbm(vec3 p, int oct) {
+    float total = 0.0;
+    return 0.0;
+}
+
 //lerpaderpadoo wahooo
 vec4 lerp(vec4 min, vec4 max, float t) {
     return min + t * (max - min);
@@ -107,15 +112,19 @@ void main()
     fs_Time = u_Time;
 
     mat3 invTranspose = mat3(u_ModelInvTr);
-    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
 
     vec3 inpos = vec3(abs(vs_Pos.x)  - u_Time * 0.01, vs_Pos.y, vs_Pos.z);
 
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
-    vec4 pos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
+    vec4 warpPos = vs_Pos + magic * 2.0 *noise(inpos);//bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
+
+
+    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
+    vec4 modelposition = u_Model * warpPos;
     
-    vec4 modelposition = u_Model * vs_Pos;
     fs_LightVec = lightPos - modelposition;
     fs_Pos = modelposition;
     gl_Position = u_ViewProj * modelposition;
+    vec4 camPos = vec4(u_CamPos, 1.0);
+    fs_camPos = camPos - vs_Pos;
 }
