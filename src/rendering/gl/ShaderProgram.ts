@@ -37,6 +37,8 @@ class ShaderProgram {
   unifTime: WebGLUniformLocation;
   unifCamPos: WebGLUniformLocation;
 
+  //unifSpinSpeed: WebGLUniformLocation;
+
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
     
@@ -59,6 +61,8 @@ class ShaderProgram {
 
     this.unifTime       = gl.getUniformLocation(this.prog, "u_Time");
     this.unifCamPos     = gl.getUniformLocation(this.prog, "u_CamPos");
+
+    
   }
 
   use() {

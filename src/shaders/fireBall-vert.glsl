@@ -155,7 +155,7 @@ void main()
     vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
     warpPos += magic * (noise(vec3(position))) * 0.1 * (yScaler);
 
-    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 4.0);
+    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 8.0);
     vec3 inpos = vec3(swirlPos.x + (u_Time*0.01) , vs_Pos.y, swirlPos.y + (u_Time*0.01) );
 
     warpPos += normal * fbm(inpos + yScaler, 5) * (yScaler);
