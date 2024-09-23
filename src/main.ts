@@ -122,6 +122,11 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireBall-frag.glsl')),
   ]);
 
+  const bg = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/bg-vert.glsl')), 
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/bg-frag.glsl')),
+  ]);
+
   // set initial values
   renderer.setCamPos(vec3.fromValues(0.0,0.0,5.0), fireBall);
   renderer.setSpinSpeed(8.0, fireBall);
@@ -175,9 +180,14 @@ function main() {
       icosphere,
       //square,
       // square2, square3
-      //cube
+      
       //tesCube
     ]);
+
+    // CREATE NEW SHADER FOR A BG HERE
+    // renderer.render(camera, lambert, [
+    //   cube,
+    // ]);
     
     stats.end();
     renderer.setTime(time, fireBall);

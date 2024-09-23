@@ -54,8 +54,6 @@ vec3 smoothsetp3D(vec3 p) {
     return vec3(gain(0.85, smoothsetp(p.x)), gain(0.85, smoothsetp(p.y)), gain(0.85, smoothsetp(p.z)));
 }
 
-
-
 float noise( in vec3 x ) {
     // grid
     vec3 p = floor(x);
