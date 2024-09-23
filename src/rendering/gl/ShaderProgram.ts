@@ -37,7 +37,8 @@ class ShaderProgram {
   unifTime: WebGLUniformLocation;
   unifCamPos: WebGLUniformLocation;
 
-  //unifSpinSpeed: WebGLUniformLocation;
+  unifSpinSpeed: WebGLUniformLocation;
+  unifCross: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -61,7 +62,9 @@ class ShaderProgram {
 
     this.unifTime       = gl.getUniformLocation(this.prog, "u_Time");
     this.unifCamPos     = gl.getUniformLocation(this.prog, "u_CamPos");
-
+    
+    this.unifSpinSpeed  = gl.getUniformLocation(this.prog, "u_SpinSpeed");
+    this.unifCross      = gl.getUniformLocation(this.prog, "u_Cross");
     
   }
 
@@ -111,6 +114,20 @@ class ShaderProgram {
     this.use();
     if (this.unifCamPos !== -1) {
       gl.uniform3fv(this.unifCamPos, campos);
+    }
+  }
+
+  setSpinSpeed(speed: number) {
+    this.use();
+    if (this.unifSpinSpeed !== -1) {
+      gl.uniform1f(this.unifSpinSpeed, speed);
+    }
+  }
+
+  setCross(cross: number) {
+    this.use();
+    if (this.unifCross !== -1) {
+      gl.uniform1f(this.unifCross, cross);
     }
   }
 

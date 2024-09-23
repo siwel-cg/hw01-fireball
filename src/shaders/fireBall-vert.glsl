@@ -5,6 +5,9 @@ uniform mat4 u_ViewProj;
 uniform float u_Time;
 uniform vec3 u_CamPos;
 
+uniform float u_SpinSpeed;
+uniform float u_Cross;
+
 in vec4 vs_Pos;             
 in vec4 vs_Nor;             
 in vec4 vs_Col;  
@@ -17,6 +20,7 @@ out vec4 fs_Pos;
 out vec4 fs_camPos; 
 out float hwarp;
 out float fbmNoise;
+out float fs_mode;
  
 const vec4 lightPos = vec4(5, 5, 3, 1); 
 
@@ -126,9 +130,9 @@ float trianlge(float x) {
     return ((2.0*18.0*(sin(3.0*2.0)))/pi) * asin(sin((2.0 * pi / 2.0) * x));
 }
 
-vec2 swirl(vec2 p, float swirlFactor) {
+vec2 swirl(vec2 p, float swirlFactor, float time) {
     float r = length(p);
-    float theta = atan(p.y, p.x) - u_Time*0.01; 
+    float theta = atan(p.y, p.x) - time; 
 
     theta += swirlFactor * r;
     return vec2(r * cos(theta), r * sin(theta));
@@ -139,24 +143,40 @@ void main()
     fs_Col = vs_Col;    
     fs_Time = u_Time;
 
+    float time = u_Time*0.01*u_SpinSpeed * 0.05;
+
     vec4 normal = vs_Nor;
     vec4 position = vs_Pos;
 
     mat3 invTranspose = mat3(u_ModelInvTr);
     float yScaler = 1.0 - abs(vs_Pos.y);
 
-    float a = atan(vs_Pos.x, vs_Pos.z) - cos(u_Time*0.01) * yScaler;
+    float a = atan(vs_Pos.x, vs_Pos.z) - cos(time) * yScaler;
     float pi = 3.141592;
+
+    vec3 axis = vec3(1.0, 0.0, 0.0);th v
+    vec3 reference = abs(axis.x) > 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 ortho1 = normalize(cross(axis, reference));
+    vec3 ortho2 = normalize(cross(axis, ortho1));
+
+    //vec4 magic = vec4(ortho1 + ortho2, 1.0);
 
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
     vec3 cross = cross(vs_Nor.xyz, abs(vs_Pos.xyz - u_CamPos));
 
-    //replace magic with lerp(magic, vec4(cross, 1.0), 1.0 - yScaler)
-    vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+    vec4 warpPos;
+    if (u_Cross == 0.0) {
+        warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+    } else {
+        warpPos = vs_Pos + lerp(magic, vec4(cross, 1.0), 1.0 - yScaler) * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+        warpPos += magic * (trianlge(a*6.0 / pi)) * 0.06 * (yScaler);
+        time *= -1.0;
+    }
+    
     warpPos += magic * (noise(vec3(position))) * 0.1 * (yScaler);
 
-    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 8.0);
-    vec3 inpos = vec3(swirlPos.x + (u_Time*0.01) , vs_Pos.y, swirlPos.y + (u_Time*0.01) );
+    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 8.0, time);
+    vec3 inpos = vec3(swirlPos.x + (time) , vs_Pos.y, swirlPos.y + (time));
 
     warpPos += normal * fbm(inpos + yScaler, 5) * (yScaler);
 
@@ -171,4 +191,6 @@ void main()
     gl_Position = u_ViewProj * modelposition;
     vec4 camPos = vec4(u_CamPos, 1.0);
     fs_camPos = camPos - vs_Pos;
+
+    fs_mode = u_Cross;
 }

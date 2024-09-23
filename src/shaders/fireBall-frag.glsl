@@ -10,6 +10,7 @@ in float fs_Time;
 in vec4 fs_camPos;
 in float hwarp;
 in float fbmNoise;
+in float fs_mode;
 
 out vec4 out_Col; 
 
@@ -158,13 +159,23 @@ void main()
 
     vec3 color = colorGrad(fbmNoise);//u_Color.xyz;
     vec4 secColor = vec4(smoothsetp3D(u_Color.xyz), 1.0);
-    vec4 colorTest = lerp(vec4(color + fit(hwarp, 1.0, 1.6, 1.0, 0.0) * (1.0 - abs(fs_Pos.y)), 1.0), secColor, (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
+    vec4 colorTest = vec4(0.0);
+    colorTest = lerp(vec4(color + fit(hwarp, 1.0, 1.6, 1.0, 0.0) * (1.0 - abs(fs_Pos.y)), 1.0), secColor, (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
     colorTest = vec4(colorTest.xyz + vec3(1.0) * (smoothsetp(0.60-fbmNoise)), colorTest.a);
-    colorTest = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
+    if (fs_mode == 0.0) {
+        colorTest = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
+    } else {
+        colorTest = lerp(vec4(vec3(1.0) * (hwarp), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist , 1.8));
+    }
+    
     float offset;
-    for (float i = 1.0; i<6.0; i+= 1.0) {
+    for (float i = 1.0; i<6.0 +2.0*fs_mode; i+= 1.0) {
         offset = pCurve(0.4, 0.1 * i, 8.0);
-        colorTest = lerp(colorTest, vec4(vec3(mod(i+1.0, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7 - offset));
+        if (fs_mode == 0.0) {
+            colorTest = lerp(colorTest, vec4(vec3(mod(i+1.0, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7 - offset));
+        } else {
+            colorTest = lerp(vec4(colorTest.xyz * (hwarp), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
+        }
     }
     out_Col = colorTest;
 }

@@ -32,6 +32,14 @@ class OpenGLRenderer {
     prog.setCamPos(campos);
   }
 
+  setSpinSpeed(speed: number, prog: ShaderProgram) {
+    prog.setSpinSpeed(speed);
+  }
+
+  setCross(cross: number, prog: ShaderProgram) {
+    prog.setCross(cross);
+  }
+
   clear() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }

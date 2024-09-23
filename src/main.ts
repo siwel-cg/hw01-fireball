@@ -14,6 +14,8 @@ import TesCube from './geometry/TesTest';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   tesselations: 5, // start at higher resolution :)
+  speed: 8.0,
+  mode: 0,
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [0, 210, 255],
 };
@@ -28,7 +30,8 @@ let tesCube: TesCube;
 let prevTesselations: number = 5;
 let prevColor: number[] = [255, 0, 255];
 let time = 0;
-let camTest: vec3;
+let prevSpeed = 8.0;
+let prevMode = 0.0;
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
@@ -64,9 +67,10 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
+  gui.add(controls, 'speed', 0, 20.0).step(0.1);
+  gui.add(controls, 'mode', 0, 1).step(1);
   gui.add(controls, 'Load Scene');
   gui.addColor(controls, 'Color');
-
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -106,7 +110,7 @@ function main() {
   ]);
 
   renderer.setCamPos(vec3.fromValues(0.0,0.0,5.0), fireBall);
-
+  renderer.setSpinSpeed(8.0, fireBall);
   // This function will be called every frame
   function tick() {
     camera.update();
@@ -128,6 +132,16 @@ function main() {
       cube.create();
       cube2 = new Cube(vec3.fromValues(0, 0, 0), 2);
       cube2.create();
+    }
+
+    if(controls.speed != prevSpeed) {
+      prevSpeed = controls.speed;
+      renderer.setSpinSpeed(controls.speed, fireBall);
+    }
+
+    if(controls.mode != prevMode){
+      prevMode = controls.mode;
+      renderer.setCross(controls.mode, fireBall);
     }
     
     // CHANGE WHAT IS RENDERED HERE
