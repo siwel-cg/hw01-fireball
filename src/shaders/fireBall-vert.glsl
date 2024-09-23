@@ -92,13 +92,15 @@ float fbm(vec3 p, int oct) {
     int octaves = oct;
     float freqScale = 2.0;
     float ampScale = 0.5;
+
     float amplitude = 0.5;
     float frequency = 1.0;
-   
+    //
+    // Loop of octaves
     for (int i = 0; i < octaves; i++) {
         total += amplitude * noise(p * frequency);
         frequency *= freqScale;
-        amplitude *= gain;
+        amplitude *= ampScale;
     }
     return total;
 }
