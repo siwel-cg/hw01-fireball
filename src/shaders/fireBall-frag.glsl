@@ -183,7 +183,7 @@ void main()
             colorTest = lerp(colorTest, vec4(vec3(mod(i+1.0, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7 - offset));
         } else {
             // colorTest = lerp(vec4(colorTest.xyz * (2.0-hwarp) * (vec3(1.0) - colorGrad(fbmNoise)), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
-            colorTest = lerp(vec4(colorTest.xyz * (2.0-hwarp) * (colorGrad2(fbmNoise + fs_Time*0.001)), 1.0), vec4(vec3(mod(i, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
+            colorTest = lerp(vec4(colorTest.xyz * (3.0-hwarp) * (colorGrad2(fbmNoise + fs_Time*0.001)), 1.0), vec4(vec3(mod(i, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
         }
     }
 

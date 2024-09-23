@@ -165,13 +165,13 @@ void main()
     //vec4 magic = vec4(ortho1 + ortho2, 1.0);
 
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
-    vec3 cross = cross(vs_Nor.xyz, abs(vs_Pos.xyz - u_CamPos));
+    vec3 cross = cross(cos(vs_Nor.xyz + u_Time*0.01), abs(vs_Pos.xyz - u_CamPos));
 
     vec4 warpPos;
     if (u_Cross == 0.0) {
         warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02) * u_Rad; // initial warp
     } else {
-        warpPos = vs_Pos + lerp(magic, vec4(cross, 1.0), 1.0 - yScaler) * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
+        warpPos = vs_Pos + lerp(magic, vec4(cross, 1.0), 1.0 - yScaler) * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02) * u_Rad; // initial warp
         warpPos += magic * (trianlge(a*6.0 / pi)) * 0.06 * (yScaler) * u_Rad;
         time *= -1.0;
     }

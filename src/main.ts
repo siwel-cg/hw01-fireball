@@ -55,7 +55,7 @@ function loadScene() {
   square3 = new Square(vec3.fromValues(0, 0, 0.8));
   square3.create();
 
-  cube = new Cube(vec3.fromValues(0,0,0), 1); // adjust side length as needed
+  cube = new Cube(vec3.fromValues(0,0,0), 10); // adjust side length as needed
   cube.create();
   cube2 = new Cube(vec3.fromValues(0,0,0), 2); // adjust side length as needed
   cube2.create();
@@ -102,7 +102,6 @@ function main() {
 
   const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
   const renderer = new OpenGLRenderer(canvas);
-
   renderer.setObjColor(controls.Color[0] / 255, controls.Color[1] / 255, controls.Color[2] / 255, 1);
   renderer.setClearColor(0, 0, 0, 1);
   
@@ -147,10 +146,8 @@ function main() {
     if(controls.Color != prevColor) {  // update cube color base on control
       prevColor = controls.Color;
       renderer.setObjColor(controls.Color[0] / 255, controls.Color[1] / 255, controls.Color[2] / 255, 1);
-      cube = new Cube(vec3.fromValues(0, 0, 0), 1);
+      cube = new Cube(vec3.fromValues(0, 0, 0), 10);
       cube.create();
-      cube2 = new Cube(vec3.fromValues(0, 0, 0), 2);
-      cube2.create();
     }
 
     if(controls.speed != prevSpeed) {
@@ -176,10 +173,12 @@ function main() {
     // CHANGE WHAT IS RENDERED HERE
     renderer.render(camera, fireBall, [ // Change shaders
       icosphere,
-      //square, square2, square3
+      //square,
+      // square2, square3
       //cube
       //tesCube
     ]);
+    
     stats.end();
     renderer.setTime(time, fireBall);
     renderer.setCamPos(camera.controls.eye, fireBall);
