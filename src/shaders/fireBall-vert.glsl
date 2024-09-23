@@ -15,6 +15,8 @@ out vec4 fs_Col;
 out float fs_Time;  
 out vec4 fs_Pos;  
 out vec4 fs_camPos; 
+out float hwarp;
+out float fbmNoise;
  
 const vec4 lightPos = vec4(5, 5, 3, 1); 
 
@@ -124,6 +126,13 @@ float trianlge(float x) {
     return ((2.0*18.0*(sin(3.0*2.0)))/pi) * asin(sin((2.0 * pi / 2.0) * x));
 }
 
+vec2 swirl(vec2 p, float swirlFactor) {
+    float r = length(p);
+    float theta = atan(p.y, p.x) + u_Time*0.01; 
+
+    theta += swirlFactor * r;
+    return vec2(r * cos(theta), r * sin(theta));
+}
 
 void main()
 {
@@ -134,17 +143,24 @@ void main()
     vec4 position = vs_Pos;
 
     mat3 invTranspose = mat3(u_ModelInvTr);
+    float yScaler = 1.0 - abs(vs_Pos.y);
 
-    float a = atan(vs_Pos.x, vs_Pos.z) - u_Time*0.01;
+    float a = atan(vs_Pos.x, vs_Pos.z) - cos(u_Time*0.01) * yScaler;
     float pi = 3.141592;
 
-    vec3 inpos = vec3((vs_Pos.x) - (u_Time * 0.01), vs_Pos.y, (vs_Pos.z) - sin(u_Time * 0.01));
-
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
-    vec3 cross = cross(magic.xyz, vec3(0, 1.0, 0.0));
+    vec3 cross = cross(vs_Nor.xyz, abs(vs_Pos.xyz - u_CamPos));
+
+    //replace magic with lerp(magic, vec4(cross, 1.0), 1.0 - yScaler)
     vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
-    warpPos += magic * (trianlge(a * 5.0 / pi) * noise(vec3(position))) * 0.1 * (1.0 - abs(position.y));
-    warpPos += normal * fbm(inpos, 5) * (1.0 - abs(position.y));
+    warpPos += magic * (trianlge(a * 5.0 / pi) * noise(vec3(position))) * 0.1 * (yScaler);
+    vec2 swirlPos = swirl(vec2((position.x), (position.z)), 4.0);
+    vec3 inpos = vec3(swirlPos.x , vs_Pos.y, swirlPos.y);
+
+    warpPos += normal * fbm(inpos + yScaler, 5) * (yScaler);
+
+    hwarp = length(magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02));
+    fbmNoise = fbm(inpos, 5);
 
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
     vec4 modelposition = u_Model * warpPos;
