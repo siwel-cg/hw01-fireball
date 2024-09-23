@@ -123,7 +123,7 @@ function main() {
   ]);
 
   const bg = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/bg-vert.glsl')), 
+    new Shader(gl.VERTEX_SHADER, require('./shaders/custom-vert.glsl')), 
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/bg-frag.glsl')),
   ]);
 
