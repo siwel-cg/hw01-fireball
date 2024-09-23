@@ -15,6 +15,14 @@ vec4 lerp(vec4 min, vec4 max, float t) {
     return min + t * (max - min);
 }
 
+float stepFun(float p, float t) {
+    if (p < t) {
+        return 0.0;
+    } else {
+        return 1.0;
+    }
+}
+
 float fallOff(vec3 look, vec3 nor) {
     return dot(normalize(nor), vec3(lerp(vec4(normalize(nor), 1.0), vec4(normalize(look), 1.0), 1.0)));
 }
@@ -93,7 +101,6 @@ float WorleyNoise3D(vec3 pos) {
     return minDist;
 }
 
-
 //idk if this is right
 float fit(float var, float imin, float imax, float omin, float omax) {
     return (var / (imax - imin)) * (omax - omin);
@@ -102,12 +109,12 @@ float fit(float var, float imin, float imax, float omin, float omax) {
 
 void main()
 {   
-    // float baseNoise = fit(mod(WorleyNoise3D(vec3(fs_Pos.xyz) + fs_Time * 0.0001) + fs_Time * 0.001, 0.11), 0.0, 0.1, 0.0, 1.0);
+     float baseNoise = fit(mod(WorleyNoise3D(vec3(fs_Pos.xyz) + fs_Time * 0.0001) + fs_Time * 0.001, 0.11), 0.0, 0.1, 0.0, 1.0);
     // float MinNoise = 1.0 - baseNoise;
     // float noise = max(baseNoise, MinNoise);
     // float noise2 = min(baseNoise, MinNoise);
 
-    // float dist = sqrt(fs_Pos.x * fs_Pos.x + fs_Pos.y * fs_Pos.y + fs_Pos.z * fs_Pos.z);
+     float dist = sqrt(fs_Pos.x * fs_Pos.x + fs_Pos.y * fs_Pos.y + fs_Pos.z * fs_Pos.z);
     // vec4 color = lerp(vec4(0, 0, 0, 1), vec4(1.0,1.0,1.0,1.0), fit(dist, 0.8, 2.0, 0.0, 0.3));
     // vec4 diffuseColor = vec4(noise, noise, noise, 1.0) * color;
 
@@ -115,5 +122,5 @@ void main()
 
     vec4 colorTest = lerp(u_Color, vec4(1.0,1.0,1.0,1.0), (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
     vec4 colooooor = fs_Col;
-    out_Col = colorTest;
+    out_Col = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
 }

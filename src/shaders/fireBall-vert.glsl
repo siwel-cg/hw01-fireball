@@ -116,7 +116,7 @@ void main()
     vec3 inpos = vec3(abs(vs_Pos.x)  - u_Time * 0.01, vs_Pos.y, vs_Pos.z);
 
     vec4 magic = vec4(vs_Nor.x, 0.0, vs_Nor.z, 0.0); 
-    vec4 warpPos = vs_Pos + magic * 2.0 *noise(inpos);//bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
+    vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.04);
 
 
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 

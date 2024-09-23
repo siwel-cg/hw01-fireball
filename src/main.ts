@@ -13,7 +13,7 @@ import TesCube from './geometry/TesTest';
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
-  tesselations: 8, // start at higher resolution :)
+  tesselations: 5, // start at higher resolution :)
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [105,0,255],
 };
