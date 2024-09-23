@@ -19,6 +19,7 @@ const controls = {
   swirl: 8.0,
   rad: 1.0,
   'Load Scene': loadScene, // A function pointer, essentially
+  'Reset': reset,
   Color: [0, 210, 255],
 };
 
@@ -36,6 +37,12 @@ let prevSpeed = 8.0;
 let prevMode = 0.0;
 let prevSwirl = 8.0;
 let prevRad = 1.0;
+
+let resetBool = 0.0;
+
+function reset() {
+  resetBool = 1.0;
+  }
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
@@ -55,8 +62,8 @@ function loadScene() {
 
   tesCube = new TesCube(vec3.fromValues(0,0,0), 1);
   tesCube.create();
-  
 }
+
 
 function main() {
   // Initial display for framerate
@@ -77,6 +84,7 @@ function main() {
   gui.add(controls, 'rad', 0, 3.0).step(0.1);
   gui.add(controls, 'Load Scene');
   gui.addColor(controls, 'Color');
+  gui.add(controls, 'Reset');
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -90,9 +98,9 @@ function main() {
 
   // Initial call to load scene
   loadScene();
+  reset();
 
   const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
-  
   const renderer = new OpenGLRenderer(canvas);
 
   renderer.setObjColor(controls.Color[0] / 255, controls.Color[1] / 255, controls.Color[2] / 255, 1);
@@ -115,11 +123,14 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireBall-frag.glsl')),
   ]);
 
+  // set initial values
   renderer.setCamPos(vec3.fromValues(0.0,0.0,5.0), fireBall);
   renderer.setSpinSpeed(8.0, fireBall);
   renderer.setSwirl(8.0, fireBall);
   renderer.setRad(1.0, fireBall);
+
   // This function will be called every frame
+
   function tick() {
     camera.update();
     stats.begin();
@@ -173,9 +184,24 @@ function main() {
     renderer.setTime(time, fireBall);
     renderer.setCamPos(camera.controls.eye, fireBall);
     time++;
+    
+    if (resetBool == 1.0) {
+      controls.swirl = 8.0;
+      controls.speed = 8.0;
+      controls.mode = 0.0;
+      controls.rad = 1.0;
+      
+      renderer.setCamPos(vec3.fromValues(0.0,0.0,5.0), fireBall);
+      renderer.setSpinSpeed(8.0, fireBall);
+      renderer.setSwirl(8.0, fireBall);
+      renderer.setRad(1.0, fireBall);
+      resetBool = 0.0;
+    }
+
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);
   }
+
 
   window.addEventListener('resize', function() {
     renderer.setSize(window.innerWidth, window.innerHeight);

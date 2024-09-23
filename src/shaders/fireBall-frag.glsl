@@ -177,5 +177,7 @@ void main()
             colorTest = lerp(vec4(colorTest.xyz * (hwarp), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
         }
     }
+    
     out_Col = colorTest;
+    
 }
