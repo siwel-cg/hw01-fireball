@@ -7,6 +7,7 @@ in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_Pos;
+in float fs_Time;
 
 out vec4 out_Col; 
 
@@ -96,16 +97,16 @@ vec3 colorGrad(float t) {
     vec3 a = vec3(0.5, 0.5, 0.5);
     vec3 b = vec3(0.5, 0.5, 0.5);
     vec3 c = vec3(1.0, 1.0, 1.0);
-    vec3 d = vec3(0.00, 0.10, 0.20);
+    vec3 d = vec3(0.00, 0.33, 0.67);
     return a + b * cos(2.0 * 3.141592 * ((c * t) + d));
 }
 
 void main() {
 
         vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);//u_Color;
-        float star1 = step(WorleyNoise3D(cross(fs_Pos.xyz, fs_Nor.xyz) * 8.0), fbm(fs_Pos.xyz, 4));
-        float star2 = step(WorleyNoise3D(cross(fs_Pos.xyz, fs_Nor.xyz) * 10.0), fbm(fs_Pos.xyz, 8));
-        float starNoise = max(star1, star2);
-        vec3 galaxy = colorGrad((noise(fs_Pos.xyz * 0.8)));
-        out_Col = vec4(galaxy * fbm(fs_Pos.xyz*0.2, 1) + diffuseColor.rgb * starNoise, diffuseColor.a);
+        float star1 = step(WorleyNoise3D(cross(fs_Pos.xyz, fs_Nor.xyz) * 8.0), fbm(fs_Pos.xyz, 4) + (cos(fs_Time * 0.001)*0.01));
+        float star2 = step(WorleyNoise3D(cross(fs_Pos.xyz, fs_Nor.xyz) * 10.0), fbm(fs_Pos.xyz, 8) + (sin(fs_Time * 0.001)*0.01));
+        float starNoise = star1 + star2;
+        vec3 galaxy = mix(colorGrad(noise(fs_Pos.xyz * 0.8)), vec3(1.0), abs(noise(fs_Pos.xyz * 0.1)) * 10.0);
+        out_Col = vec4(diffuseColor.rgb * galaxy * starNoise, diffuseColor.a);
 }

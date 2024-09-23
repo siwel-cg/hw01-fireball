@@ -55,7 +55,7 @@ function loadScene() {
   square3 = new Square(vec3.fromValues(0, 0, 0.8));
   square3.create();
 
-  cube = new Cube(vec3.fromValues(0,0,0), 10); // adjust side length as needed
+  cube = new Cube(vec3.fromValues(0,0,0), 30); // adjust side length as needed
   cube.create();
   cube2 = new Cube(vec3.fromValues(0,0,0), 2); // adjust side length as needed
   cube2.create();
@@ -151,8 +151,7 @@ function main() {
     if(controls.Color != prevColor) {  // update cube color base on control
       prevColor = controls.Color;
       renderer.setObjColor(controls.Color[0] / 255, controls.Color[1] / 255, controls.Color[2] / 255, 1);
-      cube = new Cube(vec3.fromValues(0, 0, 0), 10);
-      cube.create();
+
     }
 
     if(controls.speed != prevSpeed) {
@@ -191,6 +190,7 @@ function main() {
     
     stats.end();
     renderer.setTime(time, fireBall);
+    renderer.setTime(time, bgBox);
     renderer.setCamPos(camera.controls.eye, fireBall);
     time++;
     
