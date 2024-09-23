@@ -96,11 +96,9 @@ vec3 colorGrad(float t) {
     vec3 a = vec3(0.5, 0.5, 0.5);
     vec3 b = vec3(0.5, 0.5, 0.5);
     vec3 c = vec3(1.0, 1.0, 1.0);
-    vec3 d = vec3(0.00, 0.33, 0.67);
+    vec3 d = vec3(0.00, 0.10, 0.20);
     return a + b * cos(2.0 * 3.141592 * ((c * t) + d));
 }
-
-
 
 void main() {
 
@@ -109,5 +107,5 @@ void main() {
         float star2 = step(WorleyNoise3D(cross(fs_Pos.xyz, fs_Nor.xyz) * 10.0), fbm(fs_Pos.xyz, 8));
         float starNoise = max(star1, star2);
         vec3 galaxy = colorGrad((noise(fs_Pos.xyz * 0.8)));
-        out_Col = vec4(galaxy * fbm(fs_Pos.xyz*0.2, 12) + diffuseColor.rgb * starNoise, diffuseColor.a);
+        out_Col = vec4(galaxy * fbm(fs_Pos.xyz*0.2, 1) + diffuseColor.rgb * starNoise, diffuseColor.a);
 }
