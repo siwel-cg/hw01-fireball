@@ -151,6 +151,14 @@ vec3 colorGrad(float t) {
     return a + b * cos(2.0 * 3.141592 * ((c * t) + d));
 }
 
+vec3 colorGrad2(float t) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(2.0, 1.0, 0.0);
+    vec3 d = vec3(0.50, 0.20, 0.25);
+    return a + b * cos(2.0 * 3.141592 * ((c * t) + d));
+}
+
 void main()
 {   
     float baseNoise = fit(mod(WorleyNoise3D(vec3(fs_Pos.xyz) + fs_Time * 0.0001) + fs_Time * 0.001, 0.11), 0.0, 0.1, 0.0, 1.0);
@@ -165,7 +173,7 @@ void main()
     if (fs_mode == 0.0) {
         colorTest = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
     } else {
-        colorTest = lerp(vec4(vec3(1.0) * (hwarp), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist , 1.8));
+        colorTest = lerp(vec4(vec3(1.0) * (1.0-hwarp), 1.0), vec4(vec3(0.0)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist , 1.8));
     }
     
     float offset;
@@ -174,10 +182,11 @@ void main()
         if (fs_mode == 0.0) {
             colorTest = lerp(colorTest, vec4(vec3(mod(i+1.0, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7 - offset));
         } else {
-            colorTest = lerp(vec4(colorTest.xyz * (hwarp), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
+            // colorTest = lerp(vec4(colorTest.xyz * (2.0-hwarp) * (vec3(1.0) - colorGrad(fbmNoise)), 1.0), vec4(vec3(color.xyz)*4.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
+            colorTest = lerp(vec4(colorTest.xyz * (2.0-hwarp) * (colorGrad2(fbmNoise + fs_Time*0.001)), 1.0), vec4(vec3(mod(i, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.8 - offset));
         }
     }
-    
+
     out_Col = colorTest;
     
 }
