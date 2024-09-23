@@ -1,55 +1,3 @@
-// #version 300 es
-
-// uniform mat4 u_Model; 
-// uniform mat4 u_ModelInvTr;
-// uniform mat4 u_ViewProj;
-
-// in vec4 vs_Pos;
-// in vec4 vs_Nor; 
-// in vec4 vs_Col;
-
-// out vec4 fs_Nor;          
-// out vec4 fs_LightVec;
-// out vec4 fs_Col;
-
-// void main()
-// {
-
-//     // Material base color (before shading)
-//     vec4 diffuseColor = u_Color;
-
-//     // Calculate the diffuse term for Lambert shading
-//     float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
-//     // Avoid negative lighting values
-//     // diffuseTerm = clamp(diffuseTerm, 0, 1);
-//     //test
-//     float ambientTerm = 0.2;
-
-//     float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
-//                                                         //to simulate ambient lighting. This ensures that faces that are not
-//                                                         //lit by our point light are not completely black.
-
-//     // Compute final shaded color
-//     out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
-
-
-//     // fs_Col = vec4(vec3(0.0), 1.0);
-//     // mat3 invTranspose = mat3(u_ModelInvTr);
-//     // fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0);
-//     // vec4 modelposition = u_Model * vs_Pos; 
-//     // gl_Position = u_ViewProj * modelposition;
-// }
-
-
-
-
-
-
-
-
-
-
-
 #version 300 es
 
 //This is a vertex shader. While it is called a "shader" due to outdated conventions, this file
@@ -77,29 +25,24 @@ in vec4 vs_Nor;             // The array of vertex normals passed to the shader
 
 in vec4 vs_Col;             // The array of vertex colors passed to the shader.
 
-out vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.
-out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
-out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
+out vec4 fs_Nor;            
+out vec4 fs_LightVec;       
+out vec4 fs_Col;   
+out vec4 fs_Pos;         
 
-const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
-                                        //the geometry in the fragment shader.
+const vec4 lightPos = vec4(5, 5, 3, 1);
 
 void main()
 {
-    fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation
-
+    fs_Col = vs_Col;                         
+    
     mat3 invTranspose = mat3(u_ModelInvTr);
-    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0);          // Pass the vertex normals to the fragment shader for interpolation.
-                                                            // Transform the geometry's normals by the inverse transpose of the
-                                                            // model matrix. This is necessary to ensure the normals remain
-                                                            // perpendicular to the surface after the surface is transformed by
-                                                            // the model matrix.
+    fs_Nor = vec4(invTranspose * vec3(-vs_Nor), 0);          
 
 
-    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below
-
-    fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies
-
-    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is
-                                             // used to render the final positions of the geometry's vertices
+    vec4 modelposition = u_Model * vs_Pos;  
+    fs_LightVec = lightPos - modelposition;
+    fs_Pos = modelposition;
+    
+    gl_Position = u_ViewProj * modelposition;
 }

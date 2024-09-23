@@ -122,9 +122,9 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/fireBall-frag.glsl')),
   ]);
 
-  const bg = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/custom-vert.glsl')), 
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/bg-frag.glsl')),
+  const bgBox = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/bgBox-vert.glsl')), 
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/bgBox-frag.glsl')),
   ]);
 
   // set initial values
@@ -185,9 +185,9 @@ function main() {
     ]);
 
     // CREATE NEW SHADER FOR A BG HERE
-    // renderer.render(camera, lambert, [
-    //   cube,
-    // ]);
+    renderer.render(camera, bgBox, [
+      cube,
+    ]);
     
     stats.end();
     renderer.setTime(time, fireBall);
