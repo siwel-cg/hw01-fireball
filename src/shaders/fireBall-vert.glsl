@@ -128,7 +128,7 @@ float trianlge(float x) {
 
 vec2 swirl(vec2 p, float swirlFactor) {
     float r = length(p);
-    float theta = atan(p.y, p.x) + u_Time*0.01; 
+    float theta = atan(p.y, p.x) - u_Time*0.01; 
 
     theta += swirlFactor * r;
     return vec2(r * cos(theta), r * sin(theta));
@@ -153,14 +153,15 @@ void main()
 
     //replace magic with lerp(magic, vec4(cross, 1.0), 1.0 - yScaler)
     vec4 warpPos = vs_Pos + magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02); // initial warp
-    warpPos += magic * (trianlge(a * 5.0 / pi) * noise(vec3(position))) * 0.1 * (yScaler);
+    warpPos += magic * (noise(vec3(position))) * 0.1 * (yScaler);
+
     vec2 swirlPos = swirl(vec2((position.x), (position.z)), 4.0);
-    vec3 inpos = vec3(swirlPos.x , vs_Pos.y, swirlPos.y);
+    vec3 inpos = vec3(swirlPos.x + (u_Time*0.01) , vs_Pos.y, swirlPos.y + (u_Time*0.01) );
 
     warpPos += normal * fbm(inpos + yScaler, 5) * (yScaler);
 
     hwarp = length(magic * bias(abs(length(vec2(vs_Nor.x, vs_Nor.z))), 0.02));
-    fbmNoise = fbm(inpos, 5);
+    fbmNoise = fbm(inpos + yScaler, 5) * (yScaler);
 
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0); 
     vec4 modelposition = u_Model * warpPos;

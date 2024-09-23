@@ -17,12 +17,9 @@ vec4 lerp(vec4 min, vec4 max, float t) {
     return min + t * (max - min);
 }
 
-float stepFun(float p, float t) {
-    if (p < t) {
-        return 0.0;
-    } else {
-        return 1.0;
-    }
+float pCurve(float x, float a, float b) {
+    float k = pow(a+b, a+b) / (pow(a,a) * pow(b,b));
+    return k * (x, a) * pow(1.0-x,b);
 }
 
 float fallOff(vec3 look, vec3 nor) {
@@ -40,9 +37,22 @@ float bias(float t, float bias) {
   return (t / ((((1.0 / bias) - 2.0) * (1.0 - t)) + 1.0));
 }
 
+float gain(float g, float t) {
+    if (t < 0.5) {
+        return bias(1.0 - g, 2.0*t) / 2.0;
+    } else { 
+        return 1.0 - bias(1.0 - g, 1.0 - 2.0*t) / 2.0;
+    }
+}
+
 float smoothsetp(float p) {
     return 6.0 * pow(p, 5.0) - 15.0 * pow(p, 4.0) + 10.0 * pow(p, 3.0);
 }
+
+vec3 smoothsetp3D(vec3 p) {
+    return vec3(gain(0.85, smoothsetp(p.x)), gain(0.85, smoothsetp(p.y)), gain(0.85, smoothsetp(p.z)));
+}
+
 
 
 float noise( in vec3 x ) {
@@ -124,6 +134,21 @@ float fit(float var, float imin, float imax, float omin, float omax) {
     return (var / (imax - imin)) * (omax - omin);
 }
 
+vec2 swirl(vec2 p, float swirlFactor) {
+    float r = length(p);
+    float theta = atan(p.y, p.x) - fs_Time*0.01; 
+
+    theta += swirlFactor * r;
+    return vec2(r * cos(theta), r * sin(theta));
+}
+
+vec3 colorGrad(float t) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.00, 0.33, 0.67);
+    return a + b * cos(2.0 * 3.141592 * ((c * t) + d));
+}
 
 void main()
 {   
@@ -131,8 +156,15 @@ void main()
 
     float dist = length(fs_Pos) * 0.86;
 
-    vec3 color = u_Color.xyz;
-    vec4 colorTest = lerp(vec4(color + fit(hwarp, 1.0, 1.6, 1.0, 0.0) * (1.0 - abs(fs_Pos.y)), 1.0), vec4(1.0,1.0,1.0,1.0), (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
-    colorTest = vec4(colorTest.xyz + 2.0 * fbmNoise, colorTest.a);
-    out_Col = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
+    vec3 color = colorGrad(fbmNoise);//u_Color.xyz;
+    vec4 secColor = vec4(smoothsetp3D(u_Color.xyz), 1.0);
+    vec4 colorTest = lerp(vec4(color + fit(hwarp, 1.0, 1.6, 1.0, 0.0) * (1.0 - abs(fs_Pos.y)), 1.0), secColor, (fallOff(fs_camPos.xyz, fs_Nor.xyz)));
+    colorTest = vec4(colorTest.xyz + vec3(1.0) * (smoothsetp(0.60-fbmNoise)), colorTest.a);
+    colorTest = lerp(colorTest, vec4(0.0, 0.0, 0.0, 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7));
+    float offset;
+    for (float i = 1.0; i<6.0; i+= 1.0) {
+        offset = pCurve(0.4, 0.1 * i, 8.0);
+        colorTest = lerp(colorTest, vec4(vec3(mod(i+1.0, 2.0)), 1.0), step(1.0-fallOff(fs_camPos.xyz, fs_Nor.xyz) + dist, 1.7 - offset));
+    }
+    out_Col = colorTest;
 }
